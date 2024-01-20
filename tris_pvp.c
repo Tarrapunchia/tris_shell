@@ -70,11 +70,13 @@ void    clean_field(char arr[6][5], int *counter)
     printf("Field cleaned.\n");
 }
 
-int    endgame(char field[6][5], int *counter)
+int    endgame(char field[6][5], int *counter, int score[2])
 {
     char    play = '\0';
 
-    printf("You've ran out of possible moves.\nWanna start a new game[y/n]\n\n");
+    if (*counter == 9)
+        printf("You've ran out of possible moves.\n");
+    printf("Wanna start a new game[y/n]\n");
     scanf(" %c", &play);
     if (play == 'y')
     {
@@ -84,21 +86,23 @@ int    endgame(char field[6][5], int *counter)
     }
     else
     {
+        printf("Final score:\nPlayer X: %d\tPlayer O: %d\n", score[0], score[1]);
         printf("See you next time!\n");
         exit (0);
     }
     return (0);
 }
 
-int    check_win(char field[6][5], int *counter)
+int    check_win(char field[6][5], int *counter, int score[2], int team)
 {
     int win = 0;
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 5; i++)
     {
         if ((isalpha(field[i][0]) && (field[i][0] == field[i][2] && field[i][4] == field[i][0])))
         {
             printf("Victory of %c team.\n\n", field[i][0]);
+            print_field(field);
             win = 1;
             break ;
         }
@@ -107,7 +111,8 @@ int    check_win(char field[6][5], int *counter)
     {
         if ((isalpha(field[0][i]) && (field[0][i] == field[2][i] && field[4][i] == field[0][i])))
         {
-            printf("Victory of %c team.\n\n", field[i][0]);
+            printf("Victory of %c team.\n\n", field[0][i]);
+            print_field(field);
             win = 1;
             break ;
         }
@@ -115,11 +120,14 @@ int    check_win(char field[6][5], int *counter)
     if (!win && isalpha(field[2][2]) && ((field[0][0] == field[2][2] && field[0][0] == field[4][4])
         || (field[0][4] == field[2][2] && field[0][4] == field[4][0])))
     {
+        printf("Victory of %c team.\n\n", field[2][2]);
+        print_field(field);
         win = 1;
     }
     if (win == 1)
     {
-        return (endgame(field, counter));
+        score[team]++;
+        return (endgame(field, counter, score));
     }
     return (0);
 }
@@ -127,27 +135,31 @@ int    check_win(char field[6][5], int *counter)
 int main()
 {
     int     counter = 0;
+    int     score[2] = {0};
     char    field[6][5] = {' ', '|', ' ', '|', ' ',
                            '_', '|', '_', '|', '_',
                            ' ', '|', ' ', '|', ' ',
                            '_', '|', '_', '|', '_',
                            ' ', '|', ' ', '|', ' ',
                            ' ', '|', ' ', '|', ' '};
-                    
+    printf("Simple PvP tic-tac-toe game.\n");
+    printf("Player starts first, every turn teams will be swapped.\n");
+    printf("First turn player team is %c\nHave fun!\n", 'X');                
     print_field(field);
+
     while (1)
     {
         fill_field('X', field);
-        if (check_win(field, &counter) == 1)
+        if (check_win(field, &counter, score, 0) == 1)
             continue;
         counter++;
         if (counter == 9)
         {
-            if (endgame(field, &counter))
+            if (endgame(field, &counter, score))
                 continue;
         }
         fill_field('O', field);
-        if (check_win(field, &counter))
+        if (check_win(field, &counter, score, 1))
             continue;
         counter++;
     }
